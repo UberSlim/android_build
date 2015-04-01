@@ -31,9 +31,10 @@ endif
 
 # Clang flags for all host or target rules
 CLANG_CONFIG_EXTRA_ASFLAGS :=
-CLANG_CONFIG_EXTRA_CFLAGS :=
-CLANG_CONFIG_EXTRA_CPPFLAGS :=
-CLANG_CONFIG_EXTRA_LDFLAGS :=
+CLANG_CONFIG_EXTRA_CFLAGS := -O2 -Qunused-arguments -Wno-unknown-warning-option
+CLANG_CONFIG_EXTRA_CPPFLAGS := -O2 -Qunused-arguments -Wno-unknown-warning-option -D__compiler_offsetof=__builtin_offsetof
+CLANG_CONFIG_EXTRA_LDFLAGS := -Wl,--sort-common
+endif
 
 CLANG_CONFIG_EXTRA_CFLAGS += \
   -D__compiler_offsetof=__builtin_offsetof
