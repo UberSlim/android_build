@@ -3,13 +3,39 @@
 # Build system colors
 
 ifneq ($(BUILD_WITH_COLORS),0)
+# Define colors
+  CL_RST="\033[0m"
+  CL_BLK="\033[30m"
   CL_RED="\033[31m"
   CL_GRN="\033[32m"
   CL_YLW="\033[33m"
   CL_BLU="\033[34m"
   CL_MAG="\033[35m"
   CL_CYN="\033[36m"
-  CL_RST="\033[0m"
+  CL_WHT="\033[37m"
+  CL_BLD_BLK="\033[1m\033[30m"
+  CL_BLD_RED="\033[1m\033[31m"
+  CL_BLD_GRN="\033[1m\033[32m"
+  CL_BLD_YLW="\033[1m\033[33m"
+  CL_BLD_BLU="\033[1m\033[34m"
+  CL_BLD_MAG="\033[1m\033[35m"
+  CL_BLD_CYN="\033[1m\033[36m"
+  CL_BLD_WHT="\033[1m\033[37m"
+# Map colors
+  # host
+  PRT_HST := $(CL_YLW)
+  # target
+  PRT_TGT := $(CL_CYN)
+  # install/copy
+  PRT_INS := $(CL_GRN)
+  # FS/images
+  PRT_IMG := $(CL_GRN)
+  # import/export/includes/notice
+  PRT_IMP := $(CL_GRN)
+  # delete
+  PRT_DEL := $(CL_RED)
+  # complete msg
+  PRT_CPL := $(CL_BLD_GRN)
 endif
 
 # HACK: clear LOCAL_PATH from including last build target before calling
@@ -542,7 +568,7 @@ endif
 $(INSTALLED_BOOTIMAGE_TARGET): $(MKEXT2IMG) $(INTERNAL_BOOTIMAGE_FILES)
 	$(call pretty,"Target boot image: $@")
 	$(hide) $(MKEXT2BOOTIMG) $(INTERNAL_BOOTIMAGE_ARGS) --output $@
-	@echo -e ${CL_CYN}"Made boot image: $@"${CL_RST}
+	@echo -e ${CL_BLD_CYN}"Made boot image: $@"${CL_RST}
 
 .PHONY: bootimage-nodeps
 bootimage-nodeps: $(MKEXT2IMG)
@@ -572,14 +598,14 @@ $(INSTALLED_BOOTIMAGE_TARGET): $(MKBOOTIMG) $(INTERNAL_BOOTIMAGE_FILES) $(BOOTIM
 	$(call pretty,"Target boot image: $@")
 	$(hide) $(MKBOOTIMG) $(INTERNAL_BOOTIMAGE_ARGS) $(BOARD_MKBOOTIMG_ARGS) --output $@
 	$(hide) $(call assert-max-image-size,$@,$(BOARD_BOOTIMAGE_PARTITION_SIZE))
-	@echo -e ${CL_CYN}"Made boot image: $@"${CL_RST}
+	@echo -e ${CL_BLD_CYN}"Made boot image: $@"${CL_RST}
 
 .PHONY: bootimage-nodeps
 bootimage-nodeps: $(MKBOOTIMG)
 	@echo "make $@: ignoring dependencies"
 	$(hide) $(MKBOOTIMG) $(INTERNAL_BOOTIMAGE_ARGS) $(BOARD_MKBOOTIMG_ARGS) --output $(INSTALLED_BOOTIMAGE_TARGET)
 	$(hide) $(call assert-max-image-size,$(INSTALLED_BOOTIMAGE_TARGET),$(BOARD_BOOTIMAGE_PARTITION_SIZE))
-	@echo -e ${CL_INS}"Made boot image: $@"${CL_RST}
+	@echo -e ${PRT_INS}"Made boot image: $@"${CL_RST}
 
   endif # PRODUCT_SUPPORTS_VERITY
 endif # TARGET_BOOTIMAGE_USE_EXT2 / BOARD_CUSTOM_BOOTIMG_MK
@@ -686,7 +712,7 @@ endif  # TARGET_BUILD_APPS
 $(kernel_notice_file): \
 	    prebuilts/qemu-kernel/arm/LINUX_KERNEL_COPYING \
 	    | $(ACP)
-	@echo -e ${CL_CYN}"Copying:"${CL_RST}" $@"
+	@echo -e ${PRT_INS}"Copying:"${CL_RST}" $@"
 	$(hide) mkdir -p $(dir $@)
 	$(hide) $(ACP) $< $@
 
@@ -912,7 +938,7 @@ DUMPKEY_JAR := $(HOST_OUT_JAVA_LIBRARIES)/dumpkey.jar
 $(RECOVERY_INSTALL_OTA_KEYS): PRIVATE_OTA_PUBLIC_KEYS := $(OTA_PUBLIC_KEYS)
 $(RECOVERY_INSTALL_OTA_KEYS): extra_keys := $(patsubst %,%.x509.pem,$(PRODUCT_EXTRA_RECOVERY_KEYS))
 $(RECOVERY_INSTALL_OTA_KEYS): $(OTA_PUBLIC_KEYS) $(DUMPKEY_JAR) $(extra_keys)
-	@echo "DumpPublicKey: $@ <= $(PRIVATE_OTA_PUBLIC_KEYS) $(extra_keys)"
+	@echo -e ${PRT_INS}"DumpPublicKey: $@ <= $(PRIVATE_OTA_PUBLIC_KEYS) $(extra_keys)"${CL_RST}
 	@rm -rf $@
 	@mkdir -p $(dir $@)
 	java -jar $(DUMPKEY_JAR) $(PRIVATE_OTA_PUBLIC_KEYS) $(extra_keys) > $@
@@ -926,12 +952,12 @@ $(recovery_ramdisk): $(MKBOOTFS) $(MINIGZIP) $(RECOVERYIMAGE_EXTRA_DEPS) \
 		$(recovery_build_prop) $(recovery_resource_deps) $(recovery_root_deps) \
 		$(recovery_fstab) \
 		$(RECOVERY_INSTALL_OTA_KEYS)
-	@echo -e ${CL_CYN}"----- Making recovery image ------"${CL_RST}
+	@echo -e ${PRT_IMG}"----- Making recovery image ------"${CL_RST}
 	$(hide) mkdir -p $(TARGET_RECOVERY_OUT)
 	$(hide) mkdir -p $(TARGET_RECOVERY_ROOT_OUT)/etc $(TARGET_RECOVERY_ROOT_OUT)/tmp
-	@echo -e ${CL_CYN}"Copying baseline ramdisk..."${CL_RST}
+	@echo -e ${PRT_IMG}"Copying baseline ramdisk..."${CL_RST}
 	$(hide) (cd $(PRODUCT_OUT) && tar -cf - $(TARGET_COPY_OUT_ROOT) | (cd $(TARGET_RECOVERY_OUT) && tar -xf -))
-	@echo -e ${CL_CYN}"Modifying ramdisk contents..."${CL_RST}
+	@echo -e ${PRT_IMG}"Modifying ramdisk contents..."${CL_RST}
 	$(hide) rm -f $(TARGET_RECOVERY_ROOT_OUT)/init*.rc
 	$(hide) cp -f $(recovery_initrc) $(TARGET_RECOVERY_ROOT_OUT)/
 	$(hide) rm -f $(TARGET_RECOVERY_ROOT_OUT)/sepolicy
@@ -1024,7 +1050,7 @@ INTERNAL_SYSTEMIMAGE_FILES := $(filter $(TARGET_OUT)/%, \
     $(RECOVERY_RESOURCE_ZIP))
 
 systemimage-squisher: $(INTERNAL_SYSTEMIMAGE_FILES)
-	@echo -e ${CL_YLW}"Optimizing PNGs to Shrink ROM Size!"${CL_RST}
+	@echo -e ${CL_BLD_WHT}"Optimizing PNGs to Shrink ROM Size!"${CL_RST}
 	$(hide) APKCERTS=$(APKCERTS_FILE) $(SQUISHER_SCRIPT) $@
 
 .PHONY: systemimage-squisher
@@ -1038,7 +1064,7 @@ FULL_SYSTEMIMAGE_DEPS := $(INTERNAL_SYSTEMIMAGE_FILES) $(INTERNAL_USERIMAGES_DEP
 # system image.
 INSTALLED_FILES_FILE := $(PRODUCT_OUT)/installed-files.txt
 $(INSTALLED_FILES_FILE): $(FULL_SYSTEMIMAGE_DEPS)
-	@echo -e ${CL_GRN}"Generating Changelog"${CL_RST}
+	@echo -e ${CL_MAG}"Generating Changelog"${CL_RST}
 	$(hide) ./vendor/slim/tools/changelog.sh
 	$(hide) mv $(PRODUCT_OUT)/Changelog.txt $(PRODUCT_OUT)/$(TARGET_PRODUCT)-Changelog.txt
 	@echo Installed file list: $@
@@ -1072,7 +1098,7 @@ endif
 
 # $(1): output file
 define build-systemimage-target
-  @echo "Target system fs image: $(1)"
+  @echo -e ${PRT_IMG}"Target system fs image: $(1)"${CL_RST}
   $(call create-system-vendor-symlink)
   @mkdir -p $(dir $(1)) $(systemimage_intermediates) && rm -rf $(systemimage_intermediates)/system_image_info.txt
   $(call generate-userimage-prop-dictionary, $(systemimage_intermediates)/system_image_info.txt, \
@@ -1109,7 +1135,7 @@ $(RECOVERY_FROM_BOOT_PATCH): $(INSTALLED_RECOVERYIMAGE_TARGET) \
                              $(INSTALLED_BOOTIMAGE_TARGET) \
 			     $(HOST_OUT_EXECUTABLES)/imgdiff \
 	                     $(HOST_OUT_EXECUTABLES)/bsdiff
-	@echo -e ${CL_CYN}"Construct recovery from boot"${CL_RST}
+	@echo -e ${PRT_IMG}"Construct recovery from boot"${CL_RST}
 	mkdir -p $(dir $@)
 ifeq ($(TARGET_NOT_USE_GZIP_RECOVERY_RAMDISK),true)
 	PATH=$(HOST_OUT_EXECUTABLES):$$PATH $(HOST_OUT_EXECUTABLES)/bsdiff $(INSTALLED_BOOTIMAGE_TARGET) $(INSTALLED_RECOVERYIMAGE_TARGET) $@
@@ -1120,7 +1146,7 @@ endif
 
 
 $(INSTALLED_SYSTEMIMAGE): $(BUILT_SYSTEMIMAGE) $(RECOVERY_FROM_BOOT_PATCH) | $(ACP)
-	@echo -e ${CL_CYN}"Install system fs image: $@"${CL_RST}
+	@echo -e ${PRT_IMG}"Install system fs image: $@"${CL_RST}
 	$(copy-file-to-target)
 	$(hide) $(call assert-max-image-size,$@ $(RECOVERY_FROM_BOOT_PATCH),$(BOARD_SYSTEMIMAGE_PARTITION_SIZE))
 
@@ -1129,7 +1155,7 @@ systemimage: $(INSTALLED_SYSTEMIMAGE)
 .PHONY: systemimage-nodeps snod
 systemimage-nodeps snod: $(filter-out systemimage-nodeps snod,$(MAKECMDGOALS)) \
 	            | $(INTERNAL_USERIMAGES_DEPS)
-	@echo "make $@: ignoring dependencies"
+	@echo -e ${PRT_IMG}"make $@: ignoring dependencies"${CL_RST}
 	$(call build-systemimage-target,$(INSTALLED_SYSTEMIMAGE))
 	$(hide) $(call assert-max-image-size,$(INSTALLED_SYSTEMIMAGE),$(BOARD_SYSTEMIMAGE_PARTITION_SIZE))
 
@@ -1482,7 +1508,7 @@ $(BUILT_TARGET_FILES_PACKAGE): \
 		$(APKCERTS_FILE) \
 		$(HOST_OUT_EXECUTABLES)/fs_config \
 		| $(ACP)
-	@echo -e ${CL_YLW}"Package target files:"${CL_RST}" $@"
+	@echo -e ${PRT_HST}"Package target files: $@"${CL_RST}
 	$(hide) rm -rf $@ $(zip_root)
 	$(hide) mkdir -p $(dir $@) $(zip_root)
 	@# Components of the recovery image
@@ -1707,7 +1733,7 @@ endif
 $(INTERNAL_OTA_PACKAGE_TARGET): $(BUILT_TARGET_FILES_PACKAGE) $(DISTTOOLS)
 	@echo "$(OTA_FROM_TARGET_SCRIPT)" > $(PRODUCT_OUT)/ota_script_path
 	@echo "$(override_device)" > $(PRODUCT_OUT)/ota_override_device
-	@echo -e ${CL_YLW}"Package OTA:"${CL_RST}" $@"
+	@echo -e ${PRT_HST}"Package OTA:"${CL_RST}" $@"
 	$(hide) MKBOOTIMG=$(MKBOOTIMG) \
 	   $(OTA_FROM_TARGET_SCRIPT) -v \
 	   $(block_based) \
@@ -1725,11 +1751,11 @@ otapackage: $(INTERNAL_OTA_PACKAGE_TARGET)
 bacon: otapackage
 	$(hide) ln -f $(INTERNAL_OTA_PACKAGE_TARGET) $(SLIM_TARGET_PACKAGE)
 	$(hide) $(MD5SUM) $(SLIM_TARGET_PACKAGE) > $(SLIM_TARGET_PACKAGE).md5sum
-	@echo -e ${CL_GRN}"Package Complete: $(SLIM_TARGET_PACKAGE)"${CL_RST}
-	@echo -e ${CL_CYN}"_  _ ___  ____ ____ ____ _    _ _  _"${CL_RST}
-	@echo -e ${CL_CYN}"|  | |__] |___ |__/ [__  |    | |\/|"${CL_RST}
-	@echo -e ${CL_CYN}"|__| |__] |___ |  \ ___] |___ | |  |"${CL_RST}
-	@echo -e ${CL_CYN}"                                    "${CL_RST}
+	@echo -e ${CL_BLD_MAG}"Package Complete: $(SLIM_TARGET_PACKAGE)"${CL_RST}
+	@echo -e ${CL_BLD_CYN}"_  _ ___  ____ ____ ____ _    _ _  _"${CL_RST}
+	@echo -e ${CL_BLD_CYN}"|  | |__] |___ |__/ [__  |    | |\/|"${CL_RST}
+	@echo -e ${CL_BLD_CYN}"|__| |__] |___ |  \ ___] |___ | |  |"${CL_RST}
+	@echo -e ${CL_BLD_CYN}"                                    "${CL_RST}
 bootzip: bootimage
 	$(BOOT_ZIP_FROM_IMAGE_SCRIPT) \
 	   $(recovery_fstab) \
@@ -1801,7 +1827,7 @@ name := $(name)-apps-$(FILE_NAME_TAG)
 
 APPS_ZIP := $(PRODUCT_OUT)/$(name).zip
 $(APPS_ZIP): $(INSTALLED_SYSTEMIMAGE)
-	@echo -e ${CL_YLW}"Package apps:"${CL_RST}" $@"
+	@echo -e ${PRT_HST}"Package apps:"${CL_RST}" $@"
 	$(hide) rm -rf $@
 	$(hide) mkdir -p $(dir $@)
 	$(hide) zip -qj $@ $(TARGET_OUT_APPS)/*/*.apk $(TARGET_OUT_APPS_PRIVILEGED)/*/*.apk
@@ -1815,7 +1841,7 @@ ifeq (true,$(EMMA_INSTRUMENT))
 EMMA_META_ZIP := $(PRODUCT_OUT)/emma_meta.zip
 # the dependency will be set up later in build/core/main.mk.
 $(EMMA_META_ZIP) :
-	@echo "Collecting Emma coverage meta files."
+	@echo -e ${PRT_HST}"Collecting Emma coverage meta files."${CL_RST}" $@"
 	$(hide) find $(TARGET_COMMON_OUT_ROOT) $(HOST_COMMON_OUT_ROOT) -name "coverage.em" | \
 		zip -@ -q $@
 
@@ -1863,7 +1889,7 @@ name := $(TARGET_PRODUCT)-emulator-$(FILE_NAME_TAG)
 INTERNAL_EMULATOR_PACKAGE_TARGET := $(PRODUCT_OUT)/$(name).zip
 
 $(INTERNAL_EMULATOR_PACKAGE_TARGET): $(INTERNAL_EMULATOR_PACKAGE_FILES)
-	@echo -e ${CL_YLW}"Package:"${CL_RST}" $@"
+	@echo -e ${PRT_HST}"Package:"${CL_RST}" $@"
 	$(hide) zip -qj $@ $(INTERNAL_EMULATOR_PACKAGE_FILES)
 
 endif
@@ -1965,7 +1991,7 @@ $(INTERNAL_SDK_TARGET): PRIVATE_INPUT_FILES := $(sdk_atree_files)
 #SDK_GNU_ERROR := true
 
 $(INTERNAL_SDK_TARGET): $(deps)
-	@echo "Package SDK: $@"
+	@echo -e ${PRT_HST}"Package SDK:"${CL_RST}" $@"
 	$(hide) rm -rf $(PRIVATE_DIR) $@
 	$(hide) for f in $(target_gnu_MODULES); do \
 	  if [ -f $$f ]; then \
