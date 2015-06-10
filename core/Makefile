@@ -1064,7 +1064,7 @@ FULL_SYSTEMIMAGE_DEPS := $(INTERNAL_SYSTEMIMAGE_FILES) $(INTERNAL_USERIMAGES_DEP
 # system image.
 INSTALLED_FILES_FILE := $(PRODUCT_OUT)/installed-files.txt
 $(INSTALLED_FILES_FILE): $(FULL_SYSTEMIMAGE_DEPS)
-	@echo -e ${CL_MAG}"Generating Changelog"${CL_RST}
+	@echo -e ${CL_BLD_WHT}"Generating Changelog"${CL_RST}
 	$(hide) ./vendor/slim/tools/changelog.sh
 	$(hide) mv $(PRODUCT_OUT)/Changelog.txt $(PRODUCT_OUT)/$(TARGET_PRODUCT)-Changelog.txt
 	@echo Installed file list: $@
@@ -1726,7 +1726,7 @@ ifneq ($(TARGET_UNIFIED_DEVICE),)
     endif
 endif
 
-ifeq ($(BLOCK_BASED_OTA),true)
+ifneq ($(BLOCK_BASED_OTA),false)
     $(INTERNAL_OTA_PACKAGE_TARGET): block_based := --block
 endif
 
@@ -1737,6 +1737,7 @@ $(INTERNAL_OTA_PACKAGE_TARGET): $(BUILT_TARGET_FILES_PACKAGE) $(DISTTOOLS)
 	$(hide) MKBOOTIMG=$(MKBOOTIMG) \
 	   $(OTA_FROM_TARGET_SCRIPT) -v \
 	   $(block_based) \
+	   $(if $(WITH_LZMA_OTA), -z) \
 	   -p $(HOST_OUT) \
 	   -k $(KEY_CERT_PAIR) \
 	   --backup=$(backuptool) \
@@ -1751,7 +1752,7 @@ otapackage: $(INTERNAL_OTA_PACKAGE_TARGET)
 bacon: otapackage
 	$(hide) ln -f $(INTERNAL_OTA_PACKAGE_TARGET) $(SLIM_TARGET_PACKAGE)
 	$(hide) $(MD5SUM) $(SLIM_TARGET_PACKAGE) > $(SLIM_TARGET_PACKAGE).md5sum
-	@echo -e ${CL_BLD_MAG}"Package Complete: $(SLIM_TARGET_PACKAGE)"${CL_RST}
+	@echo -e ${CL_BLD_WHT}"Package Complete: $(SLIM_TARGET_PACKAGE)"${CL_RST}
 	@echo -e ${CL_BLD_CYN}"_  _ ___  ____ ____ ____ _    _ _  _"${CL_RST}
 	@echo -e ${CL_BLD_CYN}"|  | |__] |___ |__/ [__  |    | |\/|"${CL_RST}
 	@echo -e ${CL_BLD_CYN}"|__| |__] |___ |  \ ___] |___ | |  |"${CL_RST}
