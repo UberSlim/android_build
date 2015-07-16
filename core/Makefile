@@ -1720,8 +1720,11 @@ otapackage: $(INTERNAL_OTA_PACKAGE_TARGET)
 bacon: otapackage
 	$(hide) ln -f $(INTERNAL_OTA_PACKAGE_TARGET) $(SLIM_TARGET_PACKAGE)
 	$(hide) $(MD5SUM) $(SLIM_TARGET_PACKAGE) > $(SLIM_TARGET_PACKAGE).md5sum
-	@echo -e ${CL_CYN}"Package Complete: $(SLIM_TARGET_PACKAGE)"${CL_RST}
-
+	@echo -e ${CL_GRN}"Package Complete: $(SLIM_TARGET_PACKAGE)"${CL_RST}
+	@echo -e ${CL_CYN}"_  _ ___  ____ ____ ____ _    _ _  _"${CL_RST}
+	@echo -e ${CL_CYN}"|  | |__] |___ |__/ [__  |    | |\/|"${CL_RST}
+	@echo -e ${CL_CYN}"|__| |__] |___ |  \ ___] |___ | |  |"${CL_RST}
+	@echo -e ${CL_CYN}"                                    "${CL_RST}
 bootzip: bootimage
 	$(BOOT_ZIP_FROM_IMAGE_SCRIPT) \
 	   $(recovery_fstab) \
