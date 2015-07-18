@@ -588,11 +588,13 @@ else if get_stage("%(bcb_dev)s") == "3/3" then
 
   system_progress = 0.75
 
-  script.Print("_  _ __  ___ __  __ _   _ _  _") 
-  script.Print("|  ||__]|___|__|[__ |   | |\/|") 
-  script.Print("|__||__]|___|  \___]|__ | |  |")
-  script.Print("A Genuinely Unique Experience ")
-  script.Print("Brought To You By ROM-Jeremy  ")
+  script.Print(" _____ _           _____ _ _       ")
+  script.Print("|  |  | |_ ___ ___|   __| |_|_____ ") 
+  script.Print("|  |  | . | -_|  _|__   | | |     |") 
+  script.Print("|_____|___|___|_| |_____|_|_|_|_|_|")
+  script.Print(" ")
+  script.Print("A Custom ROM Based On SlimLP Source")
+  script.Print("Tweaked By CaptivateKing/ROM-Jeremy")
   script.Print(" ")
 
   if OPTIONS.wipe_user_data:
