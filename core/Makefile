@@ -1755,7 +1755,7 @@ bacon: otapackage
 	@echo -e ${CL_BLD_CYN}"_  _ ___  ____ ____ ____ _    _ _  _"${CL_RST}
 	@echo -e ${CL_BLD_CYN}"|  | |__] |___ |__/ [__  |    | |\/|"${CL_RST}
 	@echo -e ${CL_BLD_CYN}"|__| |__] |___ |  \ ___] |___ | |  |"${CL_RST}
-	@echo -e ${CL_BLD_CYN}"                                    "${CL_RST}
+	@echo -e ${CL_BLD_WHT}"---SHIT OFFICIALLY JUST GOT REAL!---"${CL_RST}
 bootzip: bootimage
 	$(BOOT_ZIP_FROM_IMAGE_SCRIPT) \
 	   $(recovery_fstab) \
