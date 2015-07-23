@@ -67,14 +67,14 @@ $(combo_2nd_arch_prefix)TARGET_STRIP := $($(combo_2nd_arch_prefix)TARGET_TOOLS_P
 
 $(combo_2nd_arch_prefix)TARGET_NO_UNDEFINED_LDFLAGS := -Wl,--no-undefined
 
-$(combo_2nd_arch_prefix)TARGET_arm_CFLAGS :=    -O3 \
+$(combo_2nd_arch_prefix)TARGET_arm_CFLAGS :=    -O2 \
                         -fomit-frame-pointer \
                         -fstrict-aliasing    \
                         -funswitch-loops
 
 # Modules can choose to compile some source as thumb.
 $(combo_2nd_arch_prefix)TARGET_thumb_CFLAGS :=  -mthumb \
-                        -O3 \
+                        -O2 \
                         -fomit-frame-pointer \
                         -fno-strict-aliasing
 
@@ -95,12 +95,11 @@ endif
 android_config_h := $(call select-android-config-h,linux-arm)
 
 $(combo_2nd_arch_prefix)TARGET_GLOBAL_CFLAGS += \
-			-mfloat-abi=softfp \
+			-msoft-float \
 			-ffunction-sections \
 			-fdata-sections \
 			-funwind-tables \
 			-fstack-protector \
-			-Wno-unused -Wno-unused-parameter -Wno-error=unused -Wno-error=unused-parameter \
 			-Wa,--noexecstack \
 			-Werror=format-security \
 			-D_FORTIFY_SOURCE=2 \
@@ -118,12 +117,6 @@ $(combo_2nd_arch_prefix)TARGET_RELEASE_CFLAGS := \
 			-fgcse-after-reload \
 			-frerun-cse-after-loop \
 			-frename-registers
-
-TARGET_GLOBAL_CFLAGS += \
-			-O3 \
-			-fno-inline-functions \
-			-funroll-loops \
-			-mvectorize-with-neon-quad
 
 # The "-Wunused-but-set-variable" option often breaks projects that enable
 # "-Wall -Werror" due to a commom idiom "ALOGV(mesg)" where ALOGV is turned
